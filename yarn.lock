@@ -94,6 +94,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@screenplaydev/retype@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@screenplaydev/retype@workspace:."
+  dependencies:
+    "@typescript-eslint/eslint-plugin": ^4.15.2
+    "@typescript-eslint/parser": ^4.15.2
+    eslint: ^7.20.0
+    typescript: ^3.9.7
+  languageName: unknown
+  linkType: soft
+
 "@types/json-schema@npm:^7.0.7":
   version: 7.0.8
   resolution: "@types/json-schema@npm:7.0.8"
@@ -1066,17 +1077,6 @@ __metadata:
   checksum: 0f88d794d4d825d39cdc2cda2fa701722858fc8de9567ad612776fce0d113376a3fc67f6a0091f31c9142b28f0c14fef08e9f92422b49f2372d5537e250fbfad
   languageName: node
   linkType: hard
-
-"re-type@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "re-type@workspace:."
-  dependencies:
-    "@typescript-eslint/eslint-plugin": ^4.15.2
-    "@typescript-eslint/parser": ^4.15.2
-    eslint: ^7.20.0
-    typescript: ^3.9.7
-  languageName: unknown
-  linkType: soft
 
 "regexpp@npm:^3.1.0":
   version: 3.2.0

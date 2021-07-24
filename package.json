@@ -1,9 +1,14 @@
 {
   "name": "@screenplaydev/retype",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "None",
+  "homepage": "https://github.com/screenplaydev/retype",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/screenplaydev/retype"
+  },
   "files": [
     "dist/"
   ],
