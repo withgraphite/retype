@@ -4,12 +4,18 @@ Reified types for Typescript.
 
 ## About
 
-Re-type gives you a way declare types in a way that the typesystem can read and can also be checked at runtime. The need came from declaring API routes which we wanted to be able to parse for developer experience wins, while still being able to validate at runtime.
+Retype gives you a way declare types in a way that the typesystem can read and can also be checked at runtime. The need came from declaring API routes which we wanted to be able to parse for developer experience wins, while still being able to validate at runtime.
+
+## Install
+
+```
+yarn add @screenplaydev/retype
+```
 
 ## Usage
 
 ```typescript
-import * as t from "re-type";
+import * as t from "@screenplaydev/retype";
 
 const isBlogPost = t.shape({
   title: t.string,
