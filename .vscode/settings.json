@@ -15,13 +15,7 @@
     "**/.git": true,
     "**/node_modules/**": true
   },
-  "files.watcherExclude": {
-    "test-resources/test-apps": true,
-    "test-resources/version-bundles": true
-  },
   "search.exclude": {
-    "test-resources/test-apps": true,
-    "test-resources/version-bundles": true,
     "**/.yarn": true,
     "**/.pnp.*": true
   }
