@@ -1,4 +1,4 @@
-# re-type
+# retype
 
 Reified types for Typescript.
 
