@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "build-phase Mochi Test",
+      "type": "pwa-node",
+      "request": "launch",
+      "program": "./build-phase/node_modules/mocha/bin/_mocha",
+      "args": ["-r", "ts-node/register", "${relativeFile}"],
+      "cwd": "${workspaceRoot}",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/build-phase/**",
+        "!**/node_modules/**"
+      ]
+    }
+  ]
+}
