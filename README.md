@@ -28,7 +28,7 @@ const isBlogPost = t.shape({
   ),
 });
 
-type MyValidatorType = t.TypeOf<typeof myValidator>;
+type TBlogPost = t.TypeOf<typeof isBlogPost>;
 
 isBlogPost({
   title: "Hello world",

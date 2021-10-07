@@ -4,9 +4,13 @@
  * The idea was heavily inspired by https://gcanti.github.io/io-ts/
  */
 
-export type Schema<TInner> = (value: unknown) => value is TInner;
+type TOpts = { logFailures: boolean };
 
-type ExtractTypeguard<T> = T extends (v: unknown) => v is infer U ? U : never;
+export type Schema<TInner> = (value: unknown, opts?: TOpts) => value is TInner;
+
+type ExtractTypeguard<T> = T extends (v: unknown, o: TOpts) => v is infer U
+  ? U
+  : never;
 export type TypeOf<A extends Schema<unknown>> = ExtractTypeguard<A>;
 
 export type UnwrapSchemaMap<TSchemaMap> = keyof TSchemaMap extends never
@@ -81,25 +85,43 @@ export function shape<
     [DefnIndex in keyof TDefnSchema]: TypeOf<TDefnSchema[DefnIndex]>;
   }
 >(schema: TDefnSchema) {
-  return (value: unknown): value is TDefn => {
+  return (value: unknown, opts?: TOpts): value is TDefn => {
     // This explicitly allows additional keys so that the validated object
     // can be intersected with other shape types (i.e. value is a superset of schema)
+
     return (
       typeof value === "object" &&
       value !== null && // one of my fave JS-isms: typeof null === "object"
       Object.keys(schema).every((key: string) => {
-        return schema[key] && schema[key]((value as any)[key]);
+        const childMatches =
+          schema[key] && schema[key]((value as any)[key], opts);
+        if (!childMatches && opts?.logFailures) {
+          console.log(
+            `Member of shape ${JSON.stringify(
+              (value as any)[key]
+            )} for ${key} does not match expected type`
+          );
+        }
+        return childMatches;
       })
     );
   };
 }
 
 export function array<TMember>(member: Schema<TMember>) {
-  return (value: unknown): value is TMember[] => {
+  return (value: unknown, opts?: TOpts): value is TMember[] => {
     return (
       Array.isArray(value) &&
       value.every((v) => {
-        return member(v);
+        const childMatches = member(v, opts);
+        if (!childMatches && opts?.logFailures) {
+          console.log(
+            `Member of array "${JSON.stringify(
+              v
+            )}" does not match expected type`
+          );
+        }
+        return childMatches;
       })
     );
   };
@@ -115,12 +137,20 @@ export function tuple<
       : never;
   } & { length: TDefnSchema["length"] }
 >(schema: TDefnSchema) {
-  return (value: unknown): value is TDefn => {
+  return (value: unknown, opts?: TOpts): value is TDefn => {
     return (
       Array.isArray(value) &&
       value.length === schema.length &&
       value.every((v, idx) => {
-        return schema[idx](v);
+        const childMatches = schema[idx](v, opts);
+        if (!childMatches && opts?.logFailures) {
+          console.log(
+            `Member of tuple "${JSON.stringify(
+              v
+            )}" does not match expected type`
+          );
+        }
+        return childMatches;
       })
     );
   };
@@ -132,8 +162,16 @@ export function union<TLeft, TRight>(
   left: Schema<TLeft>,
   right: Schema<TRight>
 ) {
-  return (value: unknown): value is TLeft | TRight => {
-    return left(value) || right(value);
+  return (value: unknown, opts?: TOpts): value is TLeft | TRight => {
+    const matches = left(value, opts) || right(value, opts);
+    if (!matches && opts?.logFailures) {
+      console.log(
+        `Member of union "${JSON.stringify(
+          value
+        )}" does not match expected type`
+      );
+    }
+    return matches;
   };
 }
 
@@ -141,8 +179,16 @@ export function intersection<TLeft, TRight>(
   left: Schema<TLeft>,
   right: Schema<TRight>
 ) {
-  return (value: unknown): value is TLeft & TRight => {
-    return left(value) && right(value);
+  return (value: unknown, opts?: TOpts): value is TLeft & TRight => {
+    const matches = left(value, opts) && right(value, opts);
+    if (!matches && opts?.logFailures) {
+      console.log(
+        `Member of intersection "${JSON.stringify(
+          value
+        )}" does not match expected type`
+      );
+    }
+    return matches;
   };
 }
 
@@ -150,10 +196,16 @@ export function unionMany<
   TSchema extends Schema<unknown>,
   TInnerSchemaType extends TypeOf<TSchema>
 >(inner: TSchema[]) {
-  return (value: unknown): value is TInnerSchemaType => {
-    return inner.some((schema) => {
-      return schema(value);
+  return (value: unknown, opts?: TOpts): value is TInnerSchemaType => {
+    const matches = inner.some((schema) => {
+      return schema(value, opts);
     });
+    if (!matches && opts?.logFailures) {
+      console.log(
+        `Member of union-many ${JSON.stringify(value)} does not expected type`
+      );
+    }
+    return matches;
   };
 }
 
@@ -169,10 +221,18 @@ export function intersectMany<
   TSchema extends Schema<unknown>,
   TInnerSchemaType extends TPluralIntersectionType<TSchema>
 >(inner: TSchema[]) {
-  return (value: unknown): value is TInnerSchemaType => {
-    return inner.every((schema) => {
-      return schema(value);
+  return (value: unknown, opts?: TOpts): value is TInnerSchemaType => {
+    const matches = inner.every((schema) => {
+      return schema(value, opts);
     });
+    if (!matches && opts?.logFailures) {
+      console.log(
+        `Member of intersection-many ${JSON.stringify(
+          value
+        )} does not expected type`
+      );
+    }
+    return matches;
   };
 }
 
