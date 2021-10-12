@@ -8,7 +8,7 @@ type TOpts = { logFailures: boolean };
 
 export type Schema<TInner> = (value: unknown, opts?: TOpts) => value is TInner;
 
-type ExtractTypeguard<T> = T extends (v: unknown, o: TOpts) => v is infer U
+type ExtractTypeguard<T> = T extends (v: unknown, o?: TOpts) => v is infer U
   ? U
   : never;
 export type TypeOf<A extends Schema<unknown>> = ExtractTypeguard<A>;
