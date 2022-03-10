@@ -81,7 +81,9 @@ export const string = (value: unknown): value is string => {
 
 ## Inspiration
 
-Heavily inspired by [io-ts](https://github.com/gcanti/io-ts).
+Heavily inspired by [io-ts](https://github.com/gcanti/io-ts) and [runtypes](https://github.com/pelotom/runtypes).
+
+(More alternatives here: <https://www.typescriptneedstypes.com/>)
 
 ## License
 

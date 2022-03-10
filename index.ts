@@ -108,6 +108,70 @@ export function shape<
   };
 }
 
+// We're taking advantage of generic type distribution, so we can't inline this
+type TaggedUnionDefn<
+  TDefnSchema extends {
+    [key: string]: Schema<unknown>;
+  }
+> = {
+  [DefnIndex in keyof TDefnSchema]: TypeOf<TDefnSchema[DefnIndex]>;
+};
+
+export function taggedUnion<
+  TTag extends string,
+  TDefnSchemas extends Record<
+    string,
+    {
+      [key: string]: Schema<unknown>;
+    } & { [tag in TTag]: Schema<string> }
+  >,
+  TDefn extends TaggedUnionDefn<TDefnSchemas[keyof TDefnSchemas]>
+>(tag: TTag, schemas: TDefnSchemas) {
+  return (value: unknown, opts?: TOpts): value is TDefn => {
+    if (typeof value !== "object" || value === null || !(tag in value)) {
+      if (opts?.logFailures) {
+        console.log(`Tagged union is not an object or missing tag`);
+      }
+      return false;
+    }
+
+    const schema = schemas[(value as Record<string, string>)[tag]];
+
+    if (!schema) {
+      return false;
+    }
+
+    return Object.keys(schema).every((key: string) => {
+      const childMatches =
+        schema[key] && schema[key]((value as any)[key], opts);
+      if (!childMatches && opts?.logFailures) {
+        console.log(
+          `Member of shape ${JSON.stringify(
+            (value as any)[key]
+          )} for ${key} does not match expected type`
+        );
+      }
+      return childMatches;
+    });
+  };
+}
+
+const foo = taggedUnion("kind" as const, {
+  PullRequestCommit: {
+    id: string,
+    kind: literal("PullRequestCommit" as const),
+    url: optional(string),
+    sha: string,
+    createdAt: optional(string),
+  },
+  HeadRefForcePushedEvent: {
+    id: string,
+    kind: literal("HeadRefForcePushedEvent" as const),
+    url: string,
+    createdAt: string,
+  },
+});
+
 export function array<TMember>(member: Schema<TMember>) {
   return (value: unknown, opts?: TOpts): value is TMember[] => {
     return (
