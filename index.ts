@@ -14,9 +14,7 @@ type ExtractTypeguard<T> = T extends (v: unknown, o?: TOpts) => v is infer U
 export type TypeOf<A extends Schema<unknown>> = ExtractTypeguard<A>;
 
 export type UnwrapSchemaMap<TSchemaMap> = keyof TSchemaMap extends never
-  ? {
-      [K in any]: undefined;
-    }
+  ? Record<string | number | symbol, undefined>
   : {
       [SchemaMapIndex in keyof TSchemaMap]: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
         ? TypeOf<TSchemaMap[SchemaMapIndex]>
@@ -48,7 +46,9 @@ function literalWithoutGenericCheck<TInner>(inner: TInner) {
   };
 }
 
-export function literal<TInner>(inner: NonGeneric<TInner>) {
+export function literal<TInner>(
+  inner: NonGeneric<TInner>
+): (value: unknown) => value is NonGeneric<TInner> {
   return literalWithoutGenericCheck(inner);
 }
 
@@ -121,11 +121,12 @@ export function shape<
       value !== null && // one of my fave JS-isms: typeof null === "object"
       Object.keys(schema).every((key: string) => {
         const childMatches =
-          schema[key] && schema[key]((value as any)[key], opts);
+          schema[key] &&
+          schema[key]((value as Record<string, unknown>)[key], opts);
         if (!childMatches && opts?.logFailures) {
           console.log(
             `Member of shape ${JSON.stringify(
-              (value as any)[key]
+              (value as Record<string, unknown>)[key]
             )} for ${key} does not match expected type`
           );
         }
@@ -170,11 +171,12 @@ export function taggedUnion<
 
     return Object.keys(schema).every((key: string) => {
       const childMatches =
-        schema[key] && schema[key]((value as any)[key], opts);
+        schema[key] &&
+        schema[key]((value as Record<string, unknown>)[key], opts);
       if (!childMatches && opts?.logFailures) {
         console.log(
           `Member of shape ${JSON.stringify(
-            (value as any)[key]
+            (value as Record<string, unknown>)[key]
           )} for ${key} does not match expected type`
         );
       }
@@ -316,7 +318,10 @@ export function intersectMany<
 export function literals<TLiterals>(
   // See below for why we exclude booleans here
   inners: readonly NonGenericExceptBooleans<TLiterals>[]
-) {
+): (
+  value: unknown,
+  opts?: TOpts | undefined
+) => value is NonGenericExceptBooleans<TLiterals> {
   return unionMany(
     inners.map((value) => {
       // Note: we intentionally don't use literal(). The reason is that would
@@ -335,10 +340,14 @@ export function literals<TLiterals>(
   );
 }
 
-export function optional<TInner>(inner: Schema<TInner>) {
+export function optional<TInner>(
+  inner: Schema<TInner>
+): (value: unknown, opts?: TOpts | undefined) => value is TInner | undefined {
   return union(inner, undefinedtype);
 }
 
-export function nullable<TInner>(inner: Schema<TInner>) {
+export function nullable<TInner>(
+  inner: Schema<TInner>
+): (value: unknown, opts?: TOpts | undefined) => value is TInner | null {
   return union(inner, nulltype);
 }
