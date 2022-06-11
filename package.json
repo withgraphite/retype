@@ -29,7 +29,7 @@
     "first-install": "yarn sdks vscode",
     "build": "tsc --project tsconfig.build.json",
     "lint": "eslint index.ts test.ts --quiet --ext .ts",
-    "test": "tsc --noEmit test.ts && yarn ts-mocha test.ts",
+    "test": "tsc --noEmit && yarn ts-mocha test.ts",
     "prepublishOnly": "yarn build"
   }
 }
