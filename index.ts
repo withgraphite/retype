@@ -77,13 +77,40 @@ export const nulltype = (value: unknown): value is null => {
  * or an array.
  */
 
+/**
+ * If we define the below schema and extracted type:
+ *
+ *     const mySchema = shape({requiredKey: string, optionalKey: optional(string)})
+ *     type TMySchema = TypeOf<typeof mySchema>
+ *
+ * We want the following to work:
+ *
+ *     const myObject: TMySchema = {requiredKey: 'value'}
+ *
+ * This doesn't work out of the box with our definition of optional.
+ * FixOptionalIndices defined below gives us this.
+ */
+type OptionalIndices<T> = {
+  [Index in keyof T]: undefined extends T[Index] ? Index : never;
+}[keyof T];
+
+type RequiredIndices<T> = {
+  [Index in keyof T]: undefined extends T[Index] ? never : Index;
+}[keyof T];
+
+type FixOptionalIndices<T> = {
+  [OIndex in OptionalIndices<T>]?: T[OIndex];
+} & {
+  [RIndex in RequiredIndices<T>]: T[RIndex];
+};
+
 export function shape<
   TDefnSchema extends {
     [key: string]: Schema<unknown>;
   },
-  TDefn extends {
+  TDefn extends FixOptionalIndices<{
     [DefnIndex in keyof TDefnSchema]: TypeOf<TDefnSchema[DefnIndex]>;
-  }
+  }>
 >(schema: TDefnSchema) {
   return (value: unknown, opts?: TOpts): value is TDefn => {
     // This explicitly allows additional keys so that the validated object
