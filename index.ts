@@ -156,22 +156,6 @@ export function taggedUnion<
   };
 }
 
-const foo = taggedUnion("kind" as const, {
-  PullRequestCommit: {
-    id: string,
-    kind: literal("PullRequestCommit" as const),
-    url: optional(string),
-    sha: string,
-    createdAt: optional(string),
-  },
-  HeadRefForcePushedEvent: {
-    id: string,
-    kind: literal("HeadRefForcePushedEvent" as const),
-    url: string,
-    createdAt: string,
-  },
-});
-
 export function array<TMember>(member: Schema<TMember>) {
   return (value: unknown, opts?: TOpts): value is TMember[] => {
     return (
