@@ -14,11 +14,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "declaration": true
+    "declaration": true,
+    "lib": ["esnext", "dom"]
   },
-  "lib": ["es2015"],
   "editor.codeActionsOnSave": {
     "source.fixAll.tslint": true
   },
-  "include": ["index.ts"]
+  "include": ["index.ts", "test.ts"]
 }
