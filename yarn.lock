@@ -94,17 +94,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@screenplaydev/retype@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@screenplaydev/retype@workspace:."
-  dependencies:
-    "@typescript-eslint/eslint-plugin": ^4.15.2
-    "@typescript-eslint/parser": ^4.15.2
-    eslint: ^7.20.0
-    typescript: ^3.9.7
-  languageName: unknown
-  linkType: soft
-
 "@types/json-schema@npm:^7.0.7":
   version: 7.0.8
   resolution: "@types/json-schema@npm:7.0.8"
@@ -210,6 +199,17 @@ __metadata:
   checksum: 49696c0a4195bd69a4a0a2024367efc9ee0e0ec2e55e2fda0d82b936f73f2399f965a15e2d088529c178194b6e02748c05bbab64f1550657c4ae6c0255703d09
   languageName: node
   linkType: hard
+
+"@withgraphite/retype@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@withgraphite/retype@workspace:."
+  dependencies:
+    "@typescript-eslint/eslint-plugin": ^4.15.2
+    "@typescript-eslint/parser": ^4.15.2
+    eslint: ^7.20.0
+    typescript: ^3.9.7
+  languageName: unknown
+  linkType: soft
 
 "acorn-jsx@npm:^5.3.1":
   version: 5.3.2
