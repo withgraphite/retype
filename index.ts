@@ -136,24 +136,27 @@ export function shape<
   };
 }
 
-// We're taking advantage of generic type distribution, so we can't inline this
-type TaggedUnionDefn<
-  TDefnSchema extends {
+type TDefnSchemasForTags<TTag extends string> = {
+  [TagValueLiteral in string]: {
     [key: string]: Schema<unknown>;
-  }
-> = {
-  [DefnIndex in keyof TDefnSchema]: TypeOf<TDefnSchema[DefnIndex]>;
+  } & { [tag in TTag]: Schema<TagValueLiteral> };
 };
+
+type TaggedUnionDefn<
+  TTag extends string,
+  TDefnSchemas extends TDefnSchemasForTags<TTag>
+> = {
+  [TagValueLiteral in keyof TDefnSchemas]: FixOptionalIndices<{
+    [ShapeItemKey in keyof TDefnSchemas[TagValueLiteral]]: TypeOf<
+      TDefnSchemas[TagValueLiteral][ShapeItemKey]
+    >;
+  }>;
+}[keyof TDefnSchemas];
 
 export function taggedUnion<
   TTag extends string,
-  TDefnSchemas extends Record<
-    string,
-    {
-      [key: string]: Schema<unknown>;
-    } & { [tag in TTag]: Schema<string> }
-  >,
-  TDefn extends TaggedUnionDefn<TDefnSchemas[keyof TDefnSchemas]>
+  TDefnSchemas extends TDefnSchemasForTags<TTag>,
+  TDefn extends TaggedUnionDefn<TTag, TDefnSchemas>
 >(tag: TTag, schemas: TDefnSchemas) {
   return (value: unknown, opts?: TOpts): value is TDefn => {
     if (typeof value !== "object" || value === null || !(tag in value)) {
@@ -169,7 +172,7 @@ export function taggedUnion<
       return false;
     }
 
-    return Object.keys(schema).every((key: string) => {
+    return Object.keys(schema).every((key) => {
       const childMatches =
         schema[key] &&
         schema[key]((value as Record<string, unknown>)[key], opts);
