@@ -205,6 +205,16 @@ export function array<TMember>(member: Schema<TMember>) {
 }
 
 // Not technically called out in JSON, but we can use JSON for this
+/**
+ * Note: when defining a tuple you should specify the schema array `const`
+ *
+ *     const tupleSchema = t.tuple([t.string, t.number] as const);
+ *
+ * If you don't, validation will work, but `t.typeOf` will be too permissive.
+ *
+ * This is due to a limitation of our current (simple) implementation.
+ * We can eventually get to a world where this isn't required.
+ */
 export function tuple<
   TDefnSchema extends readonly Schema<unknown>[],
   // Mapped tuple logic derived from https://stackoverflow.com/a/51679156/781199
