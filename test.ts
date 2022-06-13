@@ -75,8 +75,7 @@ const taggedUnionSchema = t.taggedUnion("tag" as const, {
 });
 const testTaggedUnion: TypeEquals<
   t.TypeOf<typeof taggedUnionSchema>,
-  // TODO we should be able to make numKey a native optional
-  | { tag: "t1"; strKey: string; numKey: number | undefined }
+  | { tag: "t1"; strKey: string; numKey?: number }
   | { tag: "t2"; booleanKey: boolean; numKey: number }
 > = true as const;
 
