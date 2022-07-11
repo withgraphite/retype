@@ -25,17 +25,15 @@ type NonOptionalSchemaKeys<TSchemaMap> = {
 }[keyof TSchemaMap];
 export type UnwrapSchemaMap<TSchemaMap> = keyof TSchemaMap extends never
   ? Record<string | number | symbol, undefined>
-  :
-      | {
-          [SchemaMapIndex in OptionalSchemaKeys<TSchemaMap>]?: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
-            ? TypeOf<TSchemaMap[SchemaMapIndex]>
-            : never;
-        }
-      | {
-          [SchemaMapIndex in NonOptionalSchemaKeys<TSchemaMap>]: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
-            ? TypeOf<TSchemaMap[SchemaMapIndex]>
-            : never;
-        };
+  : {
+      [SchemaMapIndex in OptionalSchemaKeys<TSchemaMap>]?: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
+        ? TypeOf<TSchemaMap[SchemaMapIndex]>
+        : never;
+    } & {
+      [SchemaMapIndex in NonOptionalSchemaKeys<TSchemaMap>]: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
+        ? TypeOf<TSchemaMap[SchemaMapIndex]>
+        : never;
+    };
 
 export const undefinedtype = (value: unknown): value is undefined => {
   return typeof value === "undefined";
