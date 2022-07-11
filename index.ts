@@ -13,18 +13,26 @@ type ExtractTypeguard<T> = T extends (v: unknown, o?: TOpts) => v is infer U
   : never;
 export type TypeOf<A extends Schema<unknown>> = ExtractTypeguard<A>;
 
+type OptionalSchemaKeys<TSchemaMap> = {
+  [Index in keyof TSchemaMap]: Schema<undefined> extends TSchemaMap[Index]
+    ? Index
+    : never;
+}[keyof TSchemaMap];
+type NonOptionalSchemaKeys<TSchemaMap> = {
+  [Index in keyof TSchemaMap]: Schema<undefined> extends TSchemaMap[Index]
+    ? never
+    : Index;
+}[keyof TSchemaMap];
 export type UnwrapSchemaMap<TSchemaMap> = keyof TSchemaMap extends never
   ? Record<string | number | symbol, undefined>
   :
       | {
-          [SchemaMapIndex in keyof TSchemaMap]?: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
-            ? Schema<undefined> extends TSchemaMap[SchemaMapIndex]
-              ? TypeOf<TSchemaMap[SchemaMapIndex]>
-              : never
+          [SchemaMapIndex in OptionalSchemaKeys<TSchemaMap>]?: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
+            ? TypeOf<TSchemaMap[SchemaMapIndex]>
             : never;
         }
       | {
-          [SchemaMapIndex in keyof TSchemaMap]: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
+          [SchemaMapIndex in NonOptionalSchemaKeys<TSchemaMap>]: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
             ? TypeOf<TSchemaMap[SchemaMapIndex]>
             : never;
         };
