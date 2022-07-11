@@ -15,11 +15,19 @@ export type TypeOf<A extends Schema<unknown>> = ExtractTypeguard<A>;
 
 export type UnwrapSchemaMap<TSchemaMap> = keyof TSchemaMap extends never
   ? Record<string | number | symbol, undefined>
-  : FixOptionalIndices<{
-      [SchemaMapIndex in keyof TSchemaMap]: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
-        ? TypeOf<TSchemaMap[SchemaMapIndex]>
-        : never;
-    }>;
+  :
+      | {
+          [SchemaMapIndex in keyof TSchemaMap]?: TSchemaMap[SchemaMapIndex] extends ReturnType<
+            typeof optional
+          >
+            ? TypeOf<TSchemaMap[SchemaMapIndex]>
+            : never;
+        }
+      | {
+          [SchemaMapIndex in keyof TSchemaMap]: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
+            ? TypeOf<TSchemaMap[SchemaMapIndex]>
+            : never;
+        };
 
 export const undefinedtype = (value: unknown): value is undefined => {
   return typeof value === "undefined";
