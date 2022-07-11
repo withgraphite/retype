@@ -17,8 +17,10 @@ export type UnwrapSchemaMap<TSchemaMap> = keyof TSchemaMap extends never
   ? Record<string | number | symbol, undefined>
   :
       | {
-          [SchemaMapIndex in keyof TSchemaMap]?: TSchemaMap[SchemaMapIndex] extends Schema<undefined>
-            ? TypeOf<TSchemaMap[SchemaMapIndex]>
+          [SchemaMapIndex in keyof TSchemaMap]?: TSchemaMap[SchemaMapIndex] extends Schema<unknown>
+            ? Schema<undefined> extends TSchemaMap[SchemaMapIndex]
+              ? TypeOf<TSchemaMap[SchemaMapIndex]>
+              : never
             : never;
         }
       | {
