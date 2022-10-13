@@ -121,12 +121,14 @@ type FixOptionalIndices<T> = {
 export function shape<
   TDefnSchema extends {
     [key: string]: Schema<unknown>;
-  },
-  TDefn extends FixOptionalIndices<{
-    [DefnIndex in keyof TDefnSchema]: TypeOf<TDefnSchema[DefnIndex]>;
-  }>
+  }
 >(schema: TDefnSchema) {
-  return (value: unknown, opts?: TOpts): value is TDefn => {
+  return (
+    value: unknown,
+    opts?: TOpts
+  ): value is FixOptionalIndices<{
+    [DefnIndex in keyof TDefnSchema]: TypeOf<TDefnSchema[DefnIndex]>;
+  }> => {
     // This explicitly allows additional keys so that the validated object
     // can be intersected with other shape types (i.e. value is a superset of schema)
 
@@ -169,10 +171,12 @@ type TaggedUnionDefn<
 
 export function taggedUnion<
   TTag extends string,
-  TDefnSchemas extends TDefnSchemasForTags<TTag>,
-  TDefn extends TaggedUnionDefn<TTag, TDefnSchemas>
+  TDefnSchemas extends TDefnSchemasForTags<TTag>
 >(tag: TTag, schemas: TDefnSchemas) {
-  return (value: unknown, opts?: TOpts): value is TDefn => {
+  return (
+    value: unknown,
+    opts?: TOpts
+  ): value is TaggedUnionDefn<TTag, TDefnSchemas> => {
     if (typeof value !== "object" || value === null || !(tag in value)) {
       if (opts?.logFailures) {
         console.log(`Tagged union is not an object or missing tag`);
@@ -233,15 +237,17 @@ export function array<TMember>(member: Schema<TMember>) {
  * We can eventually get to a world where this isn't required.
  */
 export function tuple<
-  TDefnSchema extends readonly Schema<unknown>[],
+  TDefnSchema extends readonly Schema<unknown>[]
   // Mapped tuple logic derived from https://stackoverflow.com/a/51679156/781199
-  TDefn extends {
+>(schema: TDefnSchema) {
+  return (
+    value: unknown,
+    opts?: TOpts
+  ): value is {
     [DefnIndex in keyof TDefnSchema]: TDefnSchema[DefnIndex] extends Schema<unknown>
       ? TypeOf<TDefnSchema[DefnIndex]>
       : never;
-  } & { length: TDefnSchema["length"] }
->(schema: TDefnSchema) {
-  return (value: unknown, opts?: TOpts): value is TDefn => {
+  } & { length: TDefnSchema["length"] } => {
     return (
       Array.isArray(value) &&
       value.length === schema.length &&
@@ -296,11 +302,8 @@ export function intersection<TLeft, TRight>(
   };
 }
 
-export function unionMany<
-  TSchema extends Schema<unknown>,
-  TInnerSchemaType extends TypeOf<TSchema>
->(inner: TSchema[]) {
-  return (value: unknown, opts?: TOpts): value is TInnerSchemaType => {
+export function unionMany<TSchema extends Schema<unknown>>(inner: TSchema[]) {
+  return (value: unknown, opts?: TOpts): value is TypeOf<TSchema> => {
     const matches = inner.some((schema) => {
       return schema(value, opts);
     });
@@ -321,11 +324,13 @@ type TPluralIntersectionType<T> = (
   ? I
   : never;
 
-export function intersectMany<
-  TSchema extends Schema<unknown>,
-  TInnerSchemaType extends TPluralIntersectionType<TSchema>
->(inner: TSchema[]) {
-  return (value: unknown, opts?: TOpts): value is TInnerSchemaType => {
+export function intersectMany<TSchema extends Schema<unknown>>(
+  inner: TSchema[]
+) {
+  return (
+    value: unknown,
+    opts?: TOpts
+  ): value is TPluralIntersectionType<TSchema> => {
     const matches = inner.every((schema) => {
       return schema(value, opts);
     });

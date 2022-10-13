@@ -1,6 +1,6 @@
 {
   "name": "@withgraphite/retype",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
