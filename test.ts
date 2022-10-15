@@ -61,6 +61,15 @@ const testShape: TypeEquals<
   { strKey: string; optNumKey?: number }
 > = true as const;
 
+const shapeWithExplicitOptionalsSchema = t._shapeWithExplicitOptionals({
+  strKey: t.string,
+  optNumKey: t.optional(t.number),
+});
+const testShapeWithExplicitOptionals: TypeEquals<
+  t.TypeOf<typeof shapeWithExplicitOptionalsSchema>,
+  { strKey: string; optNumKey: number | undefined }
+> = true as const;
+
 const taggedUnionSchema = t.taggedUnion("tag" as const, {
   t1: {
     tag: t.literal("t1"),
@@ -139,6 +148,7 @@ void testUndefined,
   testOptional,
   testNullable,
   testShape,
+  testShapeWithExplicitOptionals,
   testTaggedUnion,
   testArray,
   testTuple,
@@ -227,6 +237,22 @@ describe(`retype runtime tests`, () => {
       optNumKey: t.optional(t.number),
     });
     expect(schema({ strKey: "string" })).to.be.true;
+    expect(schema({ strKey: "string", numKey: undefined })).to.be.true;
+    expect(schema({ strKey: "string", numKey: 42 })).to.be.true;
+    expect(schema({ numKey: 42 })).to.be.false;
+    expect(schema({})).to.be.false;
+    expect(schema(undefined)).to.be.false;
+  });
+
+  it(`validates shape with explicit optionals`, () => {
+    const schema = t._shapeWithExplicitOptionals({
+      strKey: t.string,
+      optNumKey: t.optional(t.number),
+    });
+    // even though the generated type requires explicit optionals, this
+    // still validates because reading the value gives undefined
+    expect(schema({ strKey: "string" })).to.be.true;
+    expect(schema({ strKey: "string", numKey: undefined })).to.be.true;
     expect(schema({ strKey: "string", numKey: 42 })).to.be.true;
     expect(schema({ numKey: 42 })).to.be.false;
     expect(schema({})).to.be.false;
