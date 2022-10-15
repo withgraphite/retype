@@ -129,28 +129,62 @@ export function shape<
   ): value is FixOptionalIndices<{
     [DefnIndex in keyof TDefnSchema]: TypeOf<TDefnSchema[DefnIndex]>;
   }> => {
-    // This explicitly allows additional keys so that the validated object
-    // can be intersected with other shape types (i.e. value is a superset of schema)
-
-    return (
-      typeof value === "object" &&
-      value !== null && // one of my fave JS-isms: typeof null === "object"
-      Object.keys(schema).every((key: string) => {
-        const childMatches =
-          schema[key] &&
-          schema[key]((value as Record<string, unknown>)[key], opts);
-        if (!childMatches && opts?.logFailures) {
-          console.log(
-            `Member of shape ${JSON.stringify(
-              (value as Record<string, unknown>)[key]
-            )} for ${key} does not match expected type`
-          );
-        }
-        return childMatches;
-      })
-    );
+    return shapeValidatorImpl(schema, value, opts);
   };
 }
+
+/**
+ * This validator is equivalent to shape, except that it gives a generated type
+ * that requires explicitly setting optional keys to undefined instead of
+ * omitting them when they are not present. It exists for certain cases
+ * where the typescript compiler is not smart enough to do what we want
+ * with inferred types of generics.
+ */
+export function _shapeWithExplicitOptionals<
+  TDefnSchema extends {
+    [key: string]: Schema<unknown>;
+  }
+>(schema: TDefnSchema) {
+  return (
+    value: unknown,
+    opts?: TOpts
+  ): value is {
+    [DefnIndex in keyof TDefnSchema]: TypeOf<TDefnSchema[DefnIndex]>;
+  } => {
+    return shapeValidatorImpl(schema, value, opts);
+  };
+}
+
+const shapeValidatorImpl = <
+  TDefnSchema extends {
+    [key: string]: Schema<unknown>;
+  }
+>(
+  schema: TDefnSchema,
+  value: unknown,
+  opts?: TOpts
+) => {
+  // This explicitly allows additional keys so that the validated object
+  // can be intersected with other shape types (i.e. value is a superset of schema)
+
+  return (
+    typeof value === "object" &&
+    value !== null && // one of my fave JS-isms: typeof null === "object"
+    Object.keys(schema).every((key: string) => {
+      const childMatches =
+        schema[key] &&
+        schema[key]((value as Record<string, unknown>)[key], opts);
+      if (!childMatches && opts?.logFailures) {
+        console.log(
+          `Member of shape ${JSON.stringify(
+            (value as Record<string, unknown>)[key]
+          )} for ${key} does not match expected type`
+        );
+      }
+      return childMatches;
+    })
+  );
+};
 
 type TDefnSchemasForTags<TTag extends string> = {
   [TagValueLiteral in string]: {
