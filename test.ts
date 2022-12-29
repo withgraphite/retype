@@ -6,69 +6,57 @@ type TypeExtends<A, B> = [A] extends [B] ? true : never;
 type TypeEquals<A, B> = TypeExtends<A, B> & TypeExtends<B, A>;
 
 // TYPESYSTEM TESTS (see below for runtime tests)
-const testUndefined: TypeEquals<
-  t.TypeOf<typeof t.undefinedtype>,
-  undefined
-> = true as const;
+true as const satisfies TypeEquals<t.TypeOf<typeof t.undefinedtype>, undefined>;
 
-const testNull: TypeEquals<t.TypeOf<typeof t.nulltype>, null> = true as const;
+true as const satisfies TypeEquals<t.TypeOf<typeof t.nulltype>, null>;
 
 const literalBooleanSchema = t.literal(true as const);
-const testLiteralBoolean: TypeEquals<
-  t.TypeOf<typeof literalBooleanSchema>,
-  true
-> = true as const;
+true as const satisfies TypeEquals<t.TypeOf<typeof literalBooleanSchema>, true>;
 
 const literalNumberSchema = t.literal(42 as const);
-const testLiteralNumber: TypeEquals<
-  t.TypeOf<typeof literalNumberSchema>,
-  42
-> = true as const;
+true as const satisfies TypeEquals<t.TypeOf<typeof literalNumberSchema>, 42>;
 
 const literalStringSchema = t.literal("string" as const);
-const testLiteralString: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof literalStringSchema>,
   "string"
-> = true as const;
+>;
 
-const testBoolean: TypeEquals<
-  t.TypeOf<typeof t.boolean>,
-  boolean
-> = true as const;
+true as const satisfies TypeEquals<t.TypeOf<typeof t.boolean>, boolean>;
 
-const testNumber: TypeEquals<t.TypeOf<typeof t.number>, number> = true as const;
+true as const satisfies TypeEquals<t.TypeOf<typeof t.number>, number>;
 
-const testString: TypeEquals<t.TypeOf<typeof t.string>, string> = true as const;
+true as const satisfies TypeEquals<t.TypeOf<typeof t.string>, string>;
 
 const optionalSchema = t.optional(t.string);
-const testOptional: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof optionalSchema>,
   string | undefined
-> = true as const;
+>;
 
 const nullableSchema = t.nullable(t.string);
-const testNullable: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof nullableSchema>,
   string | null
-> = true as const;
+>;
 
 const shapeSchema = t.shape({
   strKey: t.string,
   optNumKey: t.optional(t.number),
 });
-const testShape: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof shapeSchema>,
   { strKey: string; optNumKey?: number }
-> = true as const;
+>;
 
 const shapeWithExplicitOptionalsSchema = t._shapeWithExplicitOptionals({
   strKey: t.string,
   optNumKey: t.optional(t.number),
 });
-const testShapeWithExplicitOptionals: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof shapeWithExplicitOptionalsSchema>,
   { strKey: string; optNumKey: number | undefined }
-> = true as const;
+>;
 
 const taggedUnionSchema = t.taggedUnion("tag" as const, {
   t1: {
@@ -82,81 +70,54 @@ const taggedUnionSchema = t.taggedUnion("tag" as const, {
     numKey: t.number,
   },
 });
-const testTaggedUnion: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof taggedUnionSchema>,
   | { tag: "t1"; strKey: string; numKey?: number }
   | { tag: "t2"; booleanKey: boolean; numKey: number }
-> = true as const;
+>;
 
 const arraySchema = t.array(t.string);
-const testArray: TypeEquals<
-  t.TypeOf<typeof arraySchema>,
-  string[]
-> = true as const;
+true as const satisfies TypeEquals<t.TypeOf<typeof arraySchema>, string[]>;
 
 const tupleSchema = t.tuple([t.string, t.number] as const);
-const testTuple: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof tupleSchema>,
   readonly [string, number]
-> = true as const;
+>;
 
 const unionSchema = t.union(t.string, t.number);
-const testUnion: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof unionSchema>,
   string | number
-> = true as const;
+>;
 
 const intersectionSchema = t.intersection(
   t.optional(t.string),
   t.nullable(t.string)
 );
-const testIntersection: TypeEquals<
-  t.TypeOf<typeof intersectionSchema>,
-  string
-> = true as const;
+true as const satisfies TypeEquals<t.TypeOf<typeof intersectionSchema>, string>;
 
 const unionManySchema = t.unionMany([t.string, t.number, t.boolean]);
-const testUnionMany: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof unionManySchema>,
   string | number | boolean
-> = true as const;
+>;
 
 const intersectManySchema = t.intersectMany([
   t.optional(t.string),
   t.nullable(t.string),
   t.union(t.string, t.number),
 ]);
-const testIntersectMany: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof intersectManySchema>,
   string
-> = true as const;
+>;
 
 const literalsSchema = t.literals(["literal" as const, 42 as const]);
-const testLiterals: TypeEquals<
+true as const satisfies TypeEquals<
   t.TypeOf<typeof literalsSchema>,
   "literal" | 42
-> = true as const;
-
-void testUndefined,
-  testNull,
-  testLiteralBoolean,
-  testLiteralNumber,
-  testLiteralString,
-  testBoolean,
-  testNumber,
-  testString,
-  testOptional,
-  testNullable,
-  testShape,
-  testShapeWithExplicitOptionals,
-  testTaggedUnion,
-  testArray,
-  testTuple,
-  testUnion,
-  testIntersection,
-  testUnionMany,
-  testIntersectMany,
-  testLiterals;
+>;
 
 // eslint-disable-next-line max-lines-per-function
 describe(`retype runtime tests`, () => {
